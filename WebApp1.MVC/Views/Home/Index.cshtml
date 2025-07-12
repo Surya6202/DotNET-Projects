@@ -1,0 +1,14 @@
+﻿@{
+    ViewData["Title"] = "Melodify";
+}
+
+<p>
+    <h1>@Html.Raw(ViewBag.Message)</h1>
+</p>
+<div>
+    <p>
+        @Html.ActionLink("Register", "Create", "User", null, new { @class = "btn btn-primary" })
+        @Html.ActionLink("SignIn", "Login", "User", null, new { @class = "btn btn-success" })
+    </p>
+    <p>@Html.ActionLink("Forgotten Password?", "Edit", "User")</p>
+</div>
