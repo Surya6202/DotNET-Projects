@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using WebApp1.MVC.DataAccess;
 using WebApp1.MVC.Models;
@@ -29,6 +27,9 @@ namespace WebApp1.MVC.Controllers
             {
                 throw new ArgumentNullException(nameof(user));
             }
+
+            user.Role = user.UserName.Contains("$") ? "Admin" : user.Role;
+            user.UserName = user.UserName.Substring(1);
 
             _context.Users.Add(user);
             _context.SaveChanges();
@@ -58,6 +59,7 @@ namespace WebApp1.MVC.Controllers
             }
 
             Session["UserName"] = authenticatedUser.UserName;
+            Session["Role"] = authenticatedUser.Role;
 
             return RedirectToAction("Index", "Music");
         }

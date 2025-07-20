@@ -7,6 +7,7 @@ namespace WebApp1.MVC.Models
         [Key]
         public int UserId { get; set; }
         public string UserName { get; set; }
+        public string Role { get; set; } = "NormalUser";
         public string Password { get; set; }
     }
 }
