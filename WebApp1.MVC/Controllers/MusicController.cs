@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
+using System.Linq;
 using System.Web.Mvc;
 using System.Web.Routing;
 using WebApp1.MVC.DataAccess;
@@ -19,7 +19,13 @@ namespace WebApp1.MVC.Controllers
         public ActionResult Index()
         {
             var musicDetails = _context.MusicDetails;
-            return View(musicDetails);
+            var songs = new Songs
+            {
+                PastCurrentMusic = musicDetails.Where(song => song.PublishedDate <= DateTime.UtcNow).ToList(),
+                UpComingMusic = musicDetails.Where(song => song.PublishedDate > DateTime.UtcNow.AddDays(1)).ToList()
+            };
+
+            return View(songs);
         }
 
         [HttpPost]
@@ -28,6 +34,10 @@ namespace WebApp1.MVC.Controllers
             if (music == null)
             {
                 throw new ArgumentNullException(nameof(music));
+            }
+            if (!IsValidRole())
+            {
+                return View("AccessDenied");
             }
             music.PublishedDate = music.PublishedDate.Date;
             _context.MusicDetails.Add(music);
@@ -38,20 +48,28 @@ namespace WebApp1.MVC.Controllers
         [HttpGet]
         public ActionResult Addmusic()
         {
+            if (!IsValidRole())
+            {
+                return View("AccessDenied");
+            }
             return View();
         }
 
         [HttpGet]
         public ActionResult Details(int id)
         {
-            var music = _context.MusicDetails.Find(id);
+            var music = MusicExists(id);
             return View(music);
         }
 
         [HttpGet]
         public ActionResult Edit(int id)
         {
-            var music = _context.MusicDetails.Find(id);
+            if (!IsValidRole())
+            {
+                return View("AccessDenied");
+            }
+            var music = MusicExists(id);
             return View(music);
         }
 
@@ -62,7 +80,13 @@ namespace WebApp1.MVC.Controllers
             {
                 throw new ArgumentNullException(nameof(music));
             }
-            var existingMusic = _context.MusicDetails.Find(music.MusicId);
+
+            if (!IsValidRole())
+            {
+                return View("AccessDenied");
+            }
+            var existingMusic = MusicExists(music.MusicId); 
+            
             if (existingMusic == null)
             {
                 throw new ArgumentNullException(nameof(existingMusic));
@@ -78,7 +102,11 @@ namespace WebApp1.MVC.Controllers
         [HttpGet]
         public ActionResult Delete(int id)
         {
-            var music = _context.MusicDetails.Find(id);
+            if (!IsValidRole())
+            {
+                return View("AccessDenied");
+            }
+            var music = MusicExists(id);
             return View(music);
         }
 
@@ -86,12 +114,19 @@ namespace WebApp1.MVC.Controllers
         [ActionName("Delete")]
         public ActionResult DeleteMusic(int id)
         {
-            var music = _context.MusicDetails.Find(id);
+            if (!IsValidRole())
+            {
+                return View("AccessDenied");
+            }
+            var music = MusicExists(id);
             _context.Remove(music);
             _context.SaveChanges();
             return RedirectToAction("Index");
         }
 
+        private Music MusicExists(int id) => _context.MusicDetails.Find(id);
+
+        private bool IsValidRole() => (Session["Role"] as string) == "Admin";
     }
 
     public class SecuredController : Controller

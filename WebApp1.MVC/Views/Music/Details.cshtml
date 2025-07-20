@@ -1,5 +1,10 @@
 ﻿@model WebApp1.MVC.Models.Music
 
+@{ 
+    var role = Session["Role"] as string;
+}
+
+
 <div>
     <h4>Music</h4>
     <hr />
@@ -39,6 +44,13 @@
     </dl>
 </div>
 <p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.MusicId }) |
+    @if (role == "Admin")
+    {
+        <div>
+            @Html.ActionLink("Edit", "Edit", new { id = Model.MusicId }) |
+            @Html.ActionLink("Delete", "Delete", new { id = Model.MusicId })
+        </div>
+
+    }
     @Html.ActionLink("Back to List", "Index")
 </p>
