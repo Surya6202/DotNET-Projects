@@ -45,12 +45,12 @@ namespace WebApp1.MVC.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Login(string userName, string password)
         {
-            if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
+            if (string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(password))
             {
                 throw new ArgumentNullException("Credentials", "Username or password cannot be empty.");
             }
 
-            var authenticatedUser = _context.Users.FirstOrDefault(x => x.UserName == userName && x.Password == password);
+            var authenticatedUser = _context.Users.SingleOrDefault(x => x.UserName == userName && x.Password == password);
 
             if (authenticatedUser == null)
             {
@@ -74,7 +74,7 @@ namespace WebApp1.MVC.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(string userName, string password)
         {
-            var existingUser = _context.Users.FirstOrDefault(x => x.UserName == userName);
+            var existingUser = _context.Users.SingleOrDefault(x => x.UserName == userName);
 
             if (existingUser == null)
             {
